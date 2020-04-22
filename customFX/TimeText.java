@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 public class TimeText extends Text {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    private ObjectProperty<LocalDateTime> value = new SimpleObjectProperty<>(this, "value") {
+    private final ObjectProperty<LocalDateTime> value = new SimpleObjectProperty<>(this, "value") {
         @Override
         protected void invalidated() {
             if (value.getValue() == null) setText("--:--");
