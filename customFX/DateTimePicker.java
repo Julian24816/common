@@ -31,23 +31,25 @@ public class DateTimePicker extends HBox {
         time.valueProperty().addListener(this::invalidated);
     }
 
-    public DateTimePicker(LocalDate date, LocalTime time) {
-        this();
-        setDate(date);
-        setTime(time);
-    }
-
     private void invalidated(Observable observable) {
         if (date.getValue() == null || time.getValue() == null) value.set(null);
         else value.set(LocalDateTime.of(date.getValue(), time.getValue()));
     }
 
-    public ReadOnlyObjectProperty<LocalDateTime> valueProperty() {
-        return value.getReadOnlyProperty();
-    }
-
     public LocalDateTime getValue() {
         return value.get();
+    }
+
+    public void setValue(LocalDateTime value) {
+        if (getValue() == null && value == null) return;
+        date.setValue(value == null ? null : value.toLocalDate());
+        time.setValue(value == null ? null : value.toLocalTime());
+    }
+
+    public DateTimePicker(LocalDate date, LocalTime time) {
+        this();
+        setDate(date);
+        setTime(time);
     }
 
     public void setDate(LocalDate value) {
@@ -58,9 +60,7 @@ public class DateTimePicker extends HBox {
         time.setValue(value);
     }
 
-    public void setValue(LocalDateTime value) {
-        if (getValue() == null && value == null) return;
-        date.setValue(value == null ? null : value.toLocalDate());
-        time.setValue(value == null ? null : value.toLocalTime());
+    public ReadOnlyObjectProperty<LocalDateTime> valueProperty() {
+        return value.getReadOnlyProperty();
     }
 }

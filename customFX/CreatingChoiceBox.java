@@ -121,6 +121,10 @@ public class CreatingChoiceBox<T extends ModelObject<T>> extends HBox {
         return new CreatingChoiceBox<>(choices, newDialog, onNew, null, false);
     }
 
+    public static <T extends ModelObject<T>> CreatingChoiceBox<T> creating(Collection<T> choices, Consumer<T> onNew) {
+        return new CreatingChoiceBox<>(choices, null, onNew, null, false);
+    }
+
     public ReadOnlyObjectProperty<T> valueProperty() {
         return valueProperty.getReadOnlyProperty();
     }

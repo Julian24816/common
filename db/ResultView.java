@@ -39,13 +39,13 @@ public final class ResultView {
         return Duration.ofMinutes(getLong(key));
     }
 
+    public long getLong(String key) throws SQLException {
+        return resultSet.getLong(getIndex(key));
+    }
+
     public LocalDateTime getDateTime(String key) throws SQLException {
         final Timestamp timestamp = resultSet.getTimestamp(getIndex(key));
         return timestamp == null ? null : timestamp.toLocalDateTime();
-    }
-
-    public long getLong(String key) throws SQLException {
-        return resultSet.getLong(getIndex(key));
     }
 
     public Optional<Integer> getOptionalInt(String key) throws SQLException {

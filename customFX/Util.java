@@ -2,6 +2,9 @@ package de.julianpadawan.common.customFX;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 import java.time.format.DateTimeParseException;
 
@@ -33,5 +36,12 @@ public final class Util {
             event.consume();
         });
         return button;
+    }
+
+    public static Region hBoxSpacer() {
+        final Region spacer = new Region();
+        spacer.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        return spacer;
     }
 }

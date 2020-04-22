@@ -10,6 +10,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TextField;
 
+import java.util.function.Function;
+
 public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
 
     protected final T editedObject;
@@ -45,6 +47,14 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
     protected abstract T createNew();
 
     protected abstract boolean save();
+
+    protected TextField addTextField(final String label, String prompt, Function<T, String> getter, boolean requiredNotEmpty) {
+        final TextField textField = gridPane2C.addRow(label, new TextField());
+        textField.setPromptText(prompt);
+        if (editedObject != null) textField.setText(getter.apply(editedObject));
+        if (requiredNotEmpty) addOKRequirement(textField.textProperty().isNotEmpty());
+        return textField;
+    }
 
     protected void addOKRequirement(ObservableValue<Boolean> value) {
         okButtonEnabled.removeListener(this::onEnableInvalidated);

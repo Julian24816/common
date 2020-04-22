@@ -59,6 +59,14 @@ public abstract class ModelFactory<T extends ModelObject<T>> {
         return null;
     }
 
+    public boolean delete(T object) {
+        final String sql = definition.getDeleteSQL();
+        return Database.execute(sql, statement -> {
+            statement.setInt(1, object.getId());
+            return statement.executeUpdate() > 0;
+        }, false);
+    }
+
     public Collection<T> getAll() {
         return selectWhere(this::selectAll, null);
     }
@@ -73,5 +81,4 @@ public abstract class ModelFactory<T extends ModelObject<T>> {
         while (resultSet.next()) list.add(resultConverter.apply(view));
         return list;
     }
-
 }

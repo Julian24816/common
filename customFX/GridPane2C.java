@@ -34,4 +34,17 @@ public class GridPane2C extends GridPane {
     public void addButtonRow(Button... buttons) {
         add(new FlowPane(space, space, buttons), 1, row++);
     }
+
+    public void skipRow() {
+        row++;
+    }
+
+    public <T extends Node> T addWideRow(String label, T node) {
+        final Label labelNode = new Label(label);
+        labelNode.setLabelFor(node);
+        add(labelNode, 0, row++);
+        add(node, 0, row++, 2, 1);
+        GridPane.setHgrow(node, Priority.ALWAYS);
+        return node;
+    }
 }

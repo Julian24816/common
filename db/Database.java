@@ -52,6 +52,21 @@ public final class Database {
         }
     }
 
+    public static <R> R execute(String sql, SQLFunction<PreparedStatement, R> executor, R errorValue) {
+        try (final Connection connection = getConnection();
+             final PreparedStatement statement = connection.prepareStatement(sql)) {
+            return executor.apply(statement);
+        } catch (SQLException e) {
+            errorHandler.accept(sql, e);
+            return errorValue;
+        }
+    }
+
+    private static Connection getConnection() throws SQLException {
+        if (dataSource == null) throw new IllegalStateException("dataSource not initialized");
+        return dataSource.getConnection();
+    }
+
     public static int queryPragma(String name) {
         return queryPragma(name, -1);
     }
@@ -66,21 +81,6 @@ public final class Database {
 
     public static boolean setPragma(String name, int value) {
         return execute(String.format("pragma %s=%d;", name, value), statement -> statement.executeUpdate() > 0, false);
-    }
-
-    public static <R> R execute(String sql, SQLFunction<PreparedStatement, R> executor, R errorValue) {
-        try (final Connection connection = getConnection();
-             final PreparedStatement statement = connection.prepareStatement(sql)) {
-            return executor.apply(statement);
-        } catch (SQLException e) {
-            errorHandler.accept(sql, e);
-            return errorValue;
-        }
-    }
-
-    private static Connection getConnection() throws SQLException {
-        if (dataSource == null) throw new IllegalStateException("dataSource not initialized");
-        return dataSource.getConnection();
     }
 
     public static void setErrorHandler(BiConsumer<String, Throwable> errorHandler) {

@@ -80,6 +80,15 @@ public final class ModelTableDefinition<T extends ModelObject<T>> {
     }
 
     public String getBaseSelectSQL() {
-        return "SELECT id, " + columnNames + " FROM " + tableName;
+        return "SELECT id," + columnNames + " FROM " + tableName;
     }
+
+    public String getDistinctSelectSQL() {
+        return "SELECT DISTINCT id," + columnNames + " FROM " + tableName;
+    }
+
+    public String getDeleteSQL() {
+        return "DELETE FROM " + tableName + " WHERE id=?";
+    }
+
 }
