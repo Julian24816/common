@@ -6,6 +6,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -49,6 +50,22 @@ public final class Database {
             sql = sql.strip();
             if (!sql.isEmpty()) execute(sql, PreparedStatement::execute, null);
         }
+    }
+
+    public static int queryPragma(String name) {
+        return queryPragma(name, -1);
+    }
+
+    public static int queryPragma(String name, int errorValue) {
+        return execute(String.format("pragma %s;", name), statement -> {
+            try (final ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() ? resultSet.getInt(1) : errorValue;
+            }
+        }, errorValue);
+    }
+
+    public static boolean setPragma(String name, int value) {
+        return execute(String.format("pragma %s=%d;", name, value), statement -> statement.executeUpdate() > 0, false);
     }
 
     public static <R> R execute(String sql, SQLFunction<PreparedStatement, R> executor, R errorValue) {
