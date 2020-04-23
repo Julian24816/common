@@ -83,10 +83,6 @@ public final class ModelTableDefinition<T extends ModelObject<T>> {
         return "SELECT id," + columnNames + " FROM " + tableName;
     }
 
-    public String getDistinctSelectSQL() {
-        return "SELECT DISTINCT id," + columnNames + " FROM " + tableName;
-    }
-
     public String getDeleteSQL() {
         return "DELETE FROM " + tableName + " WHERE id=?";
     }
