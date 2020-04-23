@@ -1,5 +1,6 @@
 package de.julianpadawan.common.customFX;
 
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,6 +25,7 @@ public class GridPane2C extends GridPane {
         labelNode.setLabelFor(node);
         addRow(row++, labelNode, node);
         GridPane.setHgrow(node, Priority.ALWAYS);
+        GridPane.setValignment(labelNode, VPos.BASELINE);
         return node;
     }
 

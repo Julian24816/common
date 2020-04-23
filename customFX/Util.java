@@ -1,5 +1,6 @@
 package de.julianpadawan.common.customFX;
 
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.layout.HBox;
@@ -26,6 +27,12 @@ public final class Util {
     public static Button button(String label, String color, Runnable onAction) {
         final Button button = button(label, onAction);
         button.setStyle("-fx-base: " + color);
+        return button;
+    }
+
+    public static Button button(ObservableValue<String> label, Runnable onAction) {
+        final Button button = button(label.getValue(), onAction);
+        button.textProperty().bind(label);
         return button;
     }
 

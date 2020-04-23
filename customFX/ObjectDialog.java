@@ -27,7 +27,7 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
         setHeaderText((editedObject == null ? "New " : "Edit ") + name);
 
         gridPane2C = new GridPane2C(10);
-        final TextField id = gridPane2C.addRow("id", new TextField());
+        final TextField id = gridPane2C.addRow("ID", new TextField());
         id.setText(editedObject == null ? "<new>" : String.valueOf(editedObject.getId()));
         id.setDisable(true);
         getDialogPane().setContent(gridPane2C);

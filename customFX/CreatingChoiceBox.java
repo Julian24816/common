@@ -59,8 +59,9 @@ public class CreatingChoiceBox<T extends ModelObject<T>> extends HBox {
         if (newValue == null) valueProperty.set(null);
         else if (newValue.isPlaceholder()) {
             assert newDialog != null;
-            final Optional<T> optionalItem = Optional.ofNullable(newDialog.get()).flatMap(Dialog::showAndWait);
-            optionalItem.ifPresentOrElse(onNew, () -> choiceBox.getSelectionModel().select(oldValue));
+            final Optional<T> newChoice = Optional.ofNullable(newDialog.get()).flatMap(Dialog::showAndWait);
+            choiceBox.getSelectionModel().select(oldValue);
+            newChoice.ifPresent(onNew);
         } else {
             valueProperty.set(newValue.get());
         }
@@ -119,10 +120,6 @@ public class CreatingChoiceBox<T extends ModelObject<T>> extends HBox {
 
     public static <T extends ModelObject<T>> CreatingChoiceBox<T> creating(Collection<T> choices, Supplier<Dialog<T>> newDialog, Consumer<T> onNew) {
         return new CreatingChoiceBox<>(choices, newDialog, onNew, null, false);
-    }
-
-    public static <T extends ModelObject<T>> CreatingChoiceBox<T> creating(Collection<T> choices, Consumer<T> onNew) {
-        return new CreatingChoiceBox<>(choices, null, onNew, null, false);
     }
 
     public ReadOnlyObjectProperty<T> valueProperty() {

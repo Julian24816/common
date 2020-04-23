@@ -52,6 +52,15 @@ public abstract class AssociationFactory<A extends ModelObject<A>, B extends Mod
         }, false);
     }
 
+    public boolean delete(A first, B second) {
+        String sql = definition.getDeleteSQL();
+        return Database.execute(sql, statement -> {
+            definition.setSQLParams(statement, first, second);
+            final int affectedRows = statement.executeUpdate();
+            return affectedRows > 0;
+        }, false);
+    }
+
     public boolean exists(A first, B second) {
         String sql = definition.getCountSQL();
         return Database.execute(sql, statement -> {
@@ -60,4 +69,6 @@ public abstract class AssociationFactory<A extends ModelObject<A>, B extends Mod
             return resultSet.next() && resultSet.getInt(1) > 0;
         }, false);
     }
+
+
 }
