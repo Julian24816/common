@@ -1,5 +1,6 @@
 package de.julianpadawan.common.customFX;
 
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
@@ -59,5 +60,12 @@ public final class Util {
         spacer.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(spacer, Priority.ALWAYS);
         return spacer;
+    }
+
+    public static void cutoff(StringProperty stringProperty, int maxLength) {
+        stringProperty.addListener(observable -> {
+            if (stringProperty.getValue().length() > maxLength)
+                stringProperty.setValue(stringProperty.getValue().substring(0, maxLength));
+        });
     }
 }

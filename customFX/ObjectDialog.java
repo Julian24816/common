@@ -24,7 +24,7 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
     protected ObjectDialog(String name, T editedObject, Consumer<T> refreshBeforeEdit) {
         super();
         this.editedObject = editedObject;
-        refreshBeforeEdit.accept(editedObject);
+        if (editedObject != null) refreshBeforeEdit.accept(editedObject);
         setTitle(name);
         setHeaderText((editedObject == null ? "New " : "Edit ") + name);
 
@@ -50,11 +50,18 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
 
     protected abstract boolean save();
 
-    protected TextField addTextField(final String label, String prompt, Function<T, String> getter, boolean requiredNotEmpty) {
+    protected TextField addTextField(final String label, String prompt, Function<T, String> getter,
+                                     boolean requiredNotEmpty) {
+        return addTextField(label, prompt, getter, requiredNotEmpty, -1);
+    }
+
+    protected TextField addTextField(final String label, String prompt, Function<T, String> getter,
+                                     boolean requiredNotEmpty, final int maxLength) {
         final TextField textField = gridPane2C.addRow(label, new TextField());
         textField.setPromptText(prompt);
         if (editedObject != null) textField.setText(getter.apply(editedObject));
         if (requiredNotEmpty) addOKRequirement(textField.textProperty().isNotEmpty());
+        if (maxLength >= 0) Util.cutoff(textField.textProperty(), maxLength);
         return textField;
     }
 
