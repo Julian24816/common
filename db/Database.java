@@ -87,4 +87,7 @@ public final class Database {
         Database.errorHandler = Objects.requireNonNull(errorHandler);
     }
 
+    public static void close() throws SQLException {
+        dataSource.close();
+    }
 }
