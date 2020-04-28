@@ -86,5 +86,4 @@ public final class ModelTableDefinition<T extends ModelObject<T>> {
     public String getDeleteSQL() {
         return "DELETE FROM " + tableName + " WHERE id=?";
     }
-
 }

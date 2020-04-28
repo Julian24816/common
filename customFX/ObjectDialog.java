@@ -10,6 +10,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TextField;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
@@ -20,9 +21,10 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
     private final Button okButton;
     private BooleanExpression okButtonEnabled;
 
-    protected ObjectDialog(String name, T editedObject) {
+    protected ObjectDialog(String name, T editedObject, Consumer<T> refreshBeforeEdit) {
         super();
         this.editedObject = editedObject;
+        refreshBeforeEdit.accept(editedObject);
         setTitle(name);
         setHeaderText((editedObject == null ? "New " : "Edit ") + name);
 

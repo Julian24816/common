@@ -81,4 +81,18 @@ public abstract class ModelFactory<T extends ModelObject<T>> {
         while (resultSet.next()) list.add(resultConverter.apply(view));
         return list;
     }
+
+    public void refresh(T editedObject) {
+        final String sql = definition.getBaseSelectSQL() + " WHERE id=?";
+        Database.execute(sql, statement -> {
+            statement.setInt(1, editedObject.getId());
+            try (final ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next())
+                    refreshInternal(editedObject, new ResultView(resultSet));
+            }
+            return null;
+        }, null);
+    }
+
+    protected abstract void refreshInternal(T editedObject, ResultView resultView) throws SQLException;
 }
