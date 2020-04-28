@@ -4,10 +4,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
@@ -54,7 +51,8 @@ public final class Database {
 
     public static <R> R execute(String sql, SQLFunction<PreparedStatement, R> executor, R errorValue) {
         try (final Connection connection = getConnection();
-             final PreparedStatement statement = connection.prepareStatement(sql)) {
+             final PreparedStatement statement = connection.prepareStatement(sql,
+                     Statement.RETURN_GENERATED_KEYS)) {
             return executor.apply(statement);
         } catch (SQLException e) {
             errorHandler.accept(sql, e);

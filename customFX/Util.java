@@ -7,6 +7,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 public final class Util {
@@ -22,17 +23,19 @@ public final class Util {
                 datePicker.getEditor().setText(datePicker.getConverter().toString(datePicker.getValue()));
             }
         });
+        datePicker.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                final LocalDate localDate = datePicker.getConverter().fromString(newValue);
+                if (datePicker.getConverter().toString(localDate).equals(newValue))
+                    datePicker.setValue(localDate);
+            } catch (DateTimeParseException ignored) {
+            }
+        });
     }
 
     public static Button button(String label, String color, Runnable onAction) {
         final Button button = button(label, onAction);
         button.setStyle("-fx-base: " + color);
-        return button;
-    }
-
-    public static Button button(ObservableValue<String> label, Runnable onAction) {
-        final Button button = button(label.getValue(), onAction);
-        button.textProperty().bind(label);
         return button;
     }
 
@@ -42,6 +45,12 @@ public final class Util {
             onAction.run();
             event.consume();
         });
+        return button;
+    }
+
+    public static Button button(ObservableValue<String> label, Runnable onAction) {
+        final Button button = button(label.getValue(), onAction);
+        button.textProperty().bind(label);
         return button;
     }
 
