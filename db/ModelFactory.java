@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,10 +40,10 @@ public abstract class ModelFactory<T extends ModelObject<T>> {
     }
 
     public T getForId(int id) {
-        return selectWhere(this::selectFirst, "id=?", 1, (preparedStatement, param) -> preparedStatement.setInt(param, id));
+        return selectWhere(this::selectFirst, "id=?", 1, (preparedStatement, param) -> preparedStatement.setInt(param, id), null);
     }
 
-    protected final <R> R selectWhere(SQLFunction<ResultSet, R> selector, String where, int params, SQLBiConsumer<PreparedStatement, Integer> paramSetter) {
+    protected final <R> R selectWhere(SQLFunction<ResultSet, R> selector, String where, int params, SQLBiConsumer<PreparedStatement, Integer> paramSetter, final R errorValue) {
         if (params < 0) throw new IllegalArgumentException("params must be >= 0");
         String sql = definition.getBaseSelectSQL();
         if (where != null && !where.isEmpty()) sql += " WHERE " + where;
@@ -51,7 +52,7 @@ public abstract class ModelFactory<T extends ModelObject<T>> {
             try (final ResultSet resultSet = statement.executeQuery()) {
                 return selector.apply(resultSet);
             }
-        }, null);
+        }, errorValue);
     }
 
     protected final T selectFirst(ResultSet resultSet) throws SQLException {
@@ -68,11 +69,11 @@ public abstract class ModelFactory<T extends ModelObject<T>> {
     }
 
     public Collection<T> getAll() {
-        return selectWhere(this::selectAll, null);
+        return selectWhere(this::selectAll, null, Collections.emptyList());
     }
 
-    protected final <R> R selectWhere(SQLFunction<ResultSet, R> selector, String where) {
-        return selectWhere(selector, where, 0, null);
+    protected final <R> R selectWhere(SQLFunction<ResultSet, R> selector, String where, final R errorValue) {
+        return selectWhere(selector, where, 0, null, errorValue);
     }
 
     protected final Collection<T> selectAll(ResultSet resultSet) throws SQLException {
