@@ -56,11 +56,11 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
     }
 
     protected TextField addTextField(final String label, String prompt, Function<T, String> getter,
-                                     boolean requiredNotEmpty, final int maxLength) {
+                                     boolean requiredNotBlank, final int maxLength) {
         final TextField textField = gridPane2C.addRow(label, new TextField());
         textField.setPromptText(prompt);
         if (editedObject != null) textField.setText(getter.apply(editedObject));
-        if (requiredNotEmpty) addOKRequirement(textField.textProperty().isNotEmpty());
+        if (requiredNotBlank) addOKRequirement(CustomBindings.matches(textField, "\\s*").not());
         if (maxLength >= 0) Util.cutoff(textField.textProperty(), maxLength);
         return textField;
     }
