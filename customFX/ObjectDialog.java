@@ -51,8 +51,8 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
     protected abstract boolean save();
 
     protected TextField addTextField(final String label, String prompt, Function<T, String> getter,
-                                     boolean requiredNotEmpty) {
-        return addTextField(label, prompt, getter, requiredNotEmpty, -1);
+                                     boolean requiredNotBlank) {
+        return addTextField(label, prompt, getter, requiredNotBlank, -1);
     }
 
     protected TextField addTextField(final String label, String prompt, Function<T, String> getter,
