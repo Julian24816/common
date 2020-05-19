@@ -2,6 +2,7 @@ package de.julianpadawan.common.customFX;
 
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.layout.HBox;
@@ -64,8 +65,10 @@ public final class Util {
 
     public static void cutoff(StringProperty stringProperty, int maxLength) {
         stringProperty.addListener(observable -> {
-            if (stringProperty.getValue().length() > maxLength)
+            if (stringProperty.getValue().length() > maxLength) {
                 stringProperty.setValue(stringProperty.getValue().substring(0, maxLength));
+                new Alert(Alert.AlertType.WARNING, "maximale Länge überschritten").showAndWait();
+            }
         });
     }
 }

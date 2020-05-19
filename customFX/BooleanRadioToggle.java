@@ -10,10 +10,11 @@ public class BooleanRadioToggle extends HBox {
 
     private final ReadOnlyBooleanWrapper value = new ReadOnlyBooleanWrapper(this, "value");
     private final RadioButton falseButton, trueButton;
+    private final ToggleGroup toggleGroup;
 
     public BooleanRadioToggle(String falseText, String trueText, boolean value) {
         super(5);
-        final ToggleGroup toggleGroup = new ToggleGroup();
+        toggleGroup = new ToggleGroup();
 
         falseButton = new RadioButton(falseText);
         falseButton.setToggleGroup(toggleGroup);
@@ -22,6 +23,7 @@ public class BooleanRadioToggle extends HBox {
         trueButton.setToggleGroup(toggleGroup);
 
         getChildren().addAll(falseButton, trueButton);
+        this.value.bind(trueButton.selectedProperty());
         setValue(value);
     }
 
@@ -34,6 +36,6 @@ public class BooleanRadioToggle extends HBox {
     }
 
     public void setValue(boolean value) {
-        (value ? trueButton : falseButton).fire();
+        toggleGroup.selectToggle((value ? trueButton : falseButton));
     }
 }
