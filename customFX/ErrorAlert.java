@@ -23,4 +23,8 @@ public class ErrorAlert extends Alert {
     public static void show(String context, Throwable e) {
         Platform.runLater(() -> new ErrorAlert(context, e).show());
     }
+
+    public static void showAndWait(String context, Throwable e) {
+        new ErrorAlert(context, e).showAndWait();
+    }
 }

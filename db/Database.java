@@ -86,6 +86,6 @@ public final class Database {
     }
 
     public static void close() throws SQLException {
-        dataSource.close();
+        if (dataSource != null) dataSource.close();
     }
 }
