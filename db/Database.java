@@ -6,30 +6,46 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.BiConsumer;
 
 /**
  * holds a connection pool
  */
 public final class Database {
+    private static CountDownLatch countDownLatch;
+
     private static BiConsumer<String, Throwable> errorHandler = (sql, error) -> {
         System.out.println(sql);
         error.printStackTrace();
     };
 
     private static BasicDataSource dataSource;
+    private static Runnable onAwaitCallback;
 
     private Database() {
     }
 
+    public static void prepareInitAsync(Runnable onAwaitCallback) {
+        synchronized (Database.class) {
+            if (dataSource != null) throw new IllegalArgumentException("already initialized");
+            Database.onAwaitCallback = onAwaitCallback;
+            countDownLatch = new CountDownLatch(1);
+        }
+    }
+
     public static void init(String url, String user, String password) {
-        dataSource = new BasicDataSource();
-        dataSource.setMinIdle(1);
-        dataSource.setMaxIdle(10);
-        dataSource.setMaxOpenPreparedStatements(100);
-        dataSource.setUrl(url);
-        dataSource.setUsername(user);
-        dataSource.setPassword(password);
+        synchronized (Database.class) {
+            dataSource = new BasicDataSource();
+            dataSource.setMinIdle(1);
+            dataSource.setMaxIdle(10);
+            dataSource.setMaxOpenPreparedStatements(100);
+            dataSource.setUrl(url);
+            dataSource.setUsername(user);
+            dataSource.setPassword(password);
+
+            if (countDownLatch != null) countDownLatch.countDown();
+        }
     }
 
     public static void execFile(String filename) throws IOException {
@@ -61,10 +77,18 @@ public final class Database {
     }
 
     private static Connection getConnection() throws SQLException {
-        if (dataSource == null) throw new IllegalStateException("dataSource not initialized");
+        if (dataSource == null && countDownLatch == null) throw new IllegalStateException("dataSource not initialized");
+        if (countDownLatch != null) try {
+            if (countDownLatch.getCount() == 1 && onAwaitCallback != null) onAwaitCallback.run();
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("await interrupted");
+        }
         return dataSource.getConnection();
     }
 
+    //TODO remove sqlite specific code
     public static int queryPragma(String name) {
         return queryPragma(name, -1);
     }
