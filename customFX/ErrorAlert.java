@@ -3,6 +3,7 @@ package de.julianpadawan.common.customFX;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
+import javafx.stage.Stage;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -18,6 +19,8 @@ public class ErrorAlert extends Alert {
         final TextArea textArea = new TextArea(errorMessage.toString());
         textArea.setEditable(false);
         getDialogPane().setExpandableContent(textArea);
+
+        ((Stage) getDialogPane().getScene().getWindow()).toFront();
     }
 
     public static void show(String context, Throwable e) {
