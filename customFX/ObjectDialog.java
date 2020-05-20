@@ -92,9 +92,10 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
     }
 
     private T convertResult(ButtonType buttonType) {
+        if (lock != null && lock.holdByUs()) lock.release();
         if (!buttonType.equals(ButtonType.OK)) return null;
         else if (editedObject == null) return createNew();
-        else return save() ? editedObject : null;
+        return save() ? editedObject : null;
     }
 
     protected abstract void reloadValuesFromEditedObject(final CountDownLatch latch);
