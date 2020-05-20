@@ -8,17 +8,22 @@ import java.sql.*;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * holds a connection pool
  */
 public final class Database {
-    private static CountDownLatch countDownLatch;
-
+    private static Consumer<String> sqlOnJavaFXApplicationThreadCallback = (sql) -> {
+        System.err.printf("JavaFX Application Thread executing SQL: %s\n", sql);
+        Thread.dumpStack();
+    };
     private static BiConsumer<String, Throwable> errorHandler = (sql, error) -> {
         System.out.println(sql);
         error.printStackTrace();
     };
+
+    private static CountDownLatch initialized;
 
     private static BasicDataSource dataSource;
     private static Runnable onAwaitCallback;
@@ -30,7 +35,7 @@ public final class Database {
         synchronized (Database.class) {
             if (dataSource != null) throw new IllegalArgumentException("already initialized");
             Database.onAwaitCallback = onAwaitCallback;
-            countDownLatch = new CountDownLatch(1);
+            initialized = new CountDownLatch(1);
         }
     }
 
@@ -44,7 +49,7 @@ public final class Database {
             dataSource.setUsername(user);
             dataSource.setPassword(password);
 
-            if (countDownLatch != null) countDownLatch.countDown();
+            if (initialized != null) initialized.countDown();
         }
     }
 
@@ -69,6 +74,8 @@ public final class Database {
         try (final Connection connection = getConnection();
              final PreparedStatement statement = connection.prepareStatement(sql,
                      Statement.RETURN_GENERATED_KEYS)) {
+            if (Thread.currentThread().getName().equals("JavaFX Application Thread") && sqlOnJavaFXApplicationThreadCallback != null)
+                sqlOnJavaFXApplicationThreadCallback.accept(sql);
             return executor.apply(statement);
         } catch (SQLException e) {
             errorHandler.accept(sql, e);
@@ -77,12 +84,12 @@ public final class Database {
     }
 
     private static Connection getConnection() throws SQLException {
-        if (dataSource == null && countDownLatch == null) throw new IllegalStateException("dataSource not initialized");
-        if (countDownLatch != null) try {
-            if (countDownLatch.getCount() == 1 && onAwaitCallback != null) onAwaitCallback.run();
-            countDownLatch.await();
+        if (dataSource == null && initialized == null) throw new IllegalStateException("dataSource not initialized");
+        if (initialized != null) try {
+            if (initialized.getCount() == 1 && onAwaitCallback != null) onAwaitCallback.run();
+            initialized.await();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            errorHandler.accept("connection await interrupted", e);
             throw new IllegalStateException("await interrupted");
         }
         return dataSource.getConnection();
@@ -107,6 +114,10 @@ public final class Database {
 
     public static void setErrorHandler(BiConsumer<String, Throwable> errorHandler) {
         Database.errorHandler = Objects.requireNonNull(errorHandler);
+    }
+
+    public static void setSqlOnJavaFXApplicationThreadCallback(final Consumer<String> callback) {
+        sqlOnJavaFXApplicationThreadCallback = callback;
     }
 
     public static void close() throws SQLException {
