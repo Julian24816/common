@@ -40,7 +40,7 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
             throw new IllegalArgumentException("refreshBeforeEdit required when using locks");
         this.refreshBeforeEdit = refreshBeforeEdit;
         this.editedObject = editedObject;
-        acquireLock(name);
+        acquireLockAndRefresh(name);
 
         setTitle(name);
         setHeaderText((editedObject == null ? "New " : "Edit ") + name);
@@ -56,7 +56,7 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
         setResultConverter(this::convertResult);
     }
 
-    private void acquireLock(String name) {
+    private void acquireLockAndRefresh(String name) {
         if (editedObject == null) return;
         if (getLock == null && refreshBeforeEdit == null) return;
         gridPane2C.addRow("Status", message);
@@ -79,7 +79,7 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
     private void refreshReloadAndAllowSave(String s) {
         refreshBeforeEdit.accept(editedObject);
         final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> reloadValuesFromEditedObject(latch));
+        Platform.runLater(() -> reloadDisplayedValuesFromEditedObject(latch));
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -98,13 +98,13 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
         return save() ? editedObject : null;
     }
 
-    protected abstract void reloadValuesFromEditedObject(final CountDownLatch latch);
+    protected abstract void reloadDisplayedValuesFromEditedObject(final CountDownLatch latch);
 
     protected abstract T createNew();
 
     protected abstract boolean save();
 
-    private static void useLocks(BiFunction<String, ModelObject<?>, Lock> getLock) {
+    public static void useLocks(BiFunction<String, ModelObject<?>, Lock> getLock) {
         ObjectDialog.getLock = getLock;
     }
 
