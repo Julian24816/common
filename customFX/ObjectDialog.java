@@ -76,6 +76,13 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
         }
     }
 
+    private T convertResult(ButtonType buttonType) {
+        if (lock != null && lock.holdByUs()) lock.release();
+        if (!buttonType.equals(ButtonType.OK)) return null;
+        else if (editedObject == null) return createNew();
+        return save() ? editedObject : null;
+    }
+
     private void refreshReloadAndAllowSave(String s) {
         refreshBeforeEdit.accept(editedObject);
         final CountDownLatch latch = new CountDownLatch(1);
@@ -91,31 +98,24 @@ public abstract class ObjectDialog<T extends ModelObject<?>> extends Dialog<T> {
         });
     }
 
-    private T convertResult(ButtonType buttonType) {
-        if (lock != null && lock.holdByUs()) lock.release();
-        if (!buttonType.equals(ButtonType.OK)) return null;
-        else if (editedObject == null) return createNew();
-        return save() ? editedObject : null;
-    }
-
-    protected abstract void reloadDisplayedValuesFromEditedObject(final CountDownLatch latch);
-
     protected abstract T createNew();
 
     protected abstract boolean save();
+
+    protected abstract void reloadDisplayedValuesFromEditedObject(final CountDownLatch latch);
 
     public static void useLocks(BiFunction<String, ModelObject<?>, Lock> getLock) {
         ObjectDialog.getLock = getLock;
     }
 
     protected TextField addTextField(final String label, String prompt, Function<T, String> getter,
-                                     boolean requiredNotBlank) {
-        return addTextField(label, prompt, getter, requiredNotBlank, -1);
+                                     boolean requiredNotBlank, final int maxLength) {
+        return addTextField(label, prompt, getter, requiredNotBlank, maxLength, new TextField());
     }
 
     protected TextField addTextField(final String label, String prompt, Function<T, String> getter,
-                                     boolean requiredNotBlank, final int maxLength) {
-        final TextField textField = gridPane2C.addRow(label, new TextField());
+                                     boolean requiredNotBlank, final int maxLength, TextField textField) {
+        gridPane2C.addRow(label, textField);
         textField.setPromptText(prompt);
         if (editedObject != null) textField.setText(getter.apply(editedObject));
         if (requiredNotBlank) addOKRequirement(CustomBindings.matches(textField, "\\s*").not());
