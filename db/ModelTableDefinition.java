@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.function.Function;
 
 public final class ModelTableDefinition<T extends ModelObject<T>> {
-    final String tableName;
+    public final String tableName;
 
     final int numberOfColumns;
     final List<ColumnType<?>> types;
