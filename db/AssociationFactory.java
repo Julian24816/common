@@ -25,10 +25,11 @@ public abstract class AssociationFactory<A extends ModelObject<A>, B extends Mod
             try (final ResultSet resultSet = statement.executeQuery()) {
                 final ResultView view = new ResultView(resultSet);
                 final List<T> list = new LinkedList<>();
-                while (resultSet.next()) list.add(constructor.apply(
-                        first,
-                        bFactory.getForId(view.getInt(definition.getSecondColumnName()))
-                ));
+                while (resultSet.next()) {
+                    final B second = bFactory.getForId(view.getInt(definition.getSecondColumnName()));
+                    if (second == null) continue;
+                    list.add(constructor.apply(first, second));
+                }
                 return list;
             }
         }, Collections.emptyList());
