@@ -27,7 +27,7 @@ public abstract class ModelFactory<T extends ModelObject<T>> {
         }, false);
     }
 
-    public T createNew(Object... params) { //TODO make protected
+    public T createNew(Object... params) { //TODO make protected and expose methods with named parameters
         final String sql = definition.getInsertSQL();
         return Database.execute(sql, statement -> {
             definition.setInsertParams(statement, params);
